@@ -1,3 +1,4 @@
+// Package goscraper contains functions and configurations for scraping
 package goscraper
 
 import (
@@ -13,11 +14,12 @@ var wg sync.WaitGroup
 var js = Jobs{}
 var ch = make(chan Jobs)
 
-func main() {
+// Scrape kicks off a full scrape
+func Scrape() {
 	// start := time.Now()
 
 	wg.Add(1)
-	go cs[0].scrape()
+	go cs[0].doScraping()
 	go func() {
 		for r := range ch {
 			js = append(js, r...)
@@ -30,7 +32,7 @@ func main() {
 	// fmt.Println(len(js))
 }
 
-func (c config) scrape() {
+func (c config) doScraping() {
 	defer wg.Done()
 	n := getNumResults(c)
 	l := getResultLinks(c, n)
