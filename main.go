@@ -15,7 +15,7 @@ var js = Jobs{}
 var ch = make(chan Jobs)
 
 // Scrape kicks off a full scrape
-func Scrape() {
+func Scrape() Jobs {
 	// start := time.Now()
 
 	wg.Add(1)
@@ -30,6 +30,7 @@ func Scrape() {
 	// elapsed := time.Since(start)
 	// fmt.Println("elapsed =", elapsed)
 	// fmt.Println(len(js))
+	return js
 }
 
 func (c config) doScraping() {
