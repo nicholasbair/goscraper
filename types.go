@@ -16,7 +16,7 @@ type Config struct {
 	SelectorURL           string
 }
 
-type Configs []config
+type Configs []Config
 
 type Job struct {
 	Title       string

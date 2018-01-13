@@ -33,7 +33,7 @@ func Scrape() Jobs {
 	return js
 }
 
-func (c config) doScraping() {
+func (c Config) doScraping() {
 	defer wg.Done()
 	n := getNumResults(c)
 	l := getResultLinks(c, n)
@@ -44,7 +44,7 @@ func (c config) doScraping() {
 	}
 }
 
-func getNumResults(c config) int {
+func getNumResults(c Config) int {
 	doc, err := goquery.NewDocument(c.Uri)
 	checkError(err)
 
@@ -54,7 +54,7 @@ func getNumResults(c config) int {
 	return i
 }
 
-func getResultLinks(c config, numOfResults int) []string {
+func getResultLinks(c Config, numOfResults int) []string {
 	r := []string{}
 	var n int
 
@@ -75,7 +75,7 @@ func getResultLinks(c config, numOfResults int) []string {
 	return r
 }
 
-func getJobData(l string, c config, i int) {
+func getJobData(l string, c Config, i int) {
 	defer wg.Done()
 	resp, err := http.Get(l)
 	checkError(err)
@@ -98,6 +98,6 @@ func getJobData(l string, c config, i int) {
 }
 
 // GetConfigs returns the config struct for each scrape
-func GetConfigs() configs {
+func GetConfigs() Configs {
 	return cs
 }
