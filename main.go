@@ -2,6 +2,7 @@
 package goscraper
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -15,11 +16,20 @@ var js = Jobs{}
 var ch = make(chan Jobs)
 
 // Scrape kicks off a full scrape
-func Scrape() Jobs {
+func Scrape(p string) Jobs {
 	// start := time.Now()
 
+	fmt.Println(p)
+
 	wg.Add(1)
-	go cs[0].doScraping()
+
+	switch p {
+	case "indeed":
+		go cs[0].doScraping()
+	case "dice":
+		go cs[1].doScraping()
+	}
+
 	go func() {
 		for r := range ch {
 			js = append(js, r...)
