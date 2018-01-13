@@ -2,6 +2,7 @@
 package goscraper
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -21,18 +22,20 @@ var wg sync.WaitGroup
 var ch = make(chan Jobs)
 
 // Scrape kicks off a full scrape
-func Scrape(p map[string]string) Jobs {
+func Scrape(p map[string][]string) Jobs {
 	js := Jobs{}
 
-	wg.Add(1)
-	go cs[p["provider"]].doScraping(p)
-	go func() {
-		for r := range ch {
-			js = append(js, r...)
-		}
-	}()
+	fmt.Println(p)
 
-	wg.Wait()
+	// wg.Add(1)
+	// go cs[p["provider"][0]].doScraping(p)
+	// go func() {
+	// 	for r := range ch {
+	// 		js = append(js, r...)
+	// 	}
+	// }()
+
+	// wg.Wait()
 	return js
 }
 
