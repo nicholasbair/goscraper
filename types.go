@@ -16,7 +16,8 @@ type Config struct {
 	SelectorURL           string
 }
 
-type Configs []Config
+// type Configs []Config
+type Configs map[string]Config
 
 type Job struct {
 	Title       string

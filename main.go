@@ -2,7 +2,6 @@
 package goscraper
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,6 +9,13 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 )
+
+// TODO
+// Fix indeed url, just returning base url
+// What query params will we need to build out search URL?
+// keywords
+// location - city and state
+// ...
 
 var wg sync.WaitGroup
 var js = Jobs{}
@@ -19,17 +25,8 @@ var ch = make(chan Jobs)
 func Scrape(p string) Jobs {
 	// start := time.Now()
 
-	fmt.Println(p)
-
 	wg.Add(1)
-
-	switch p {
-	case "indeed":
-		go cs[0].doScraping()
-	case "dice":
-		go cs[1].doScraping()
-	}
-
+	go cs[p].doScraping()
 	go func() {
 		for r := range ch {
 			js = append(js, r...)
