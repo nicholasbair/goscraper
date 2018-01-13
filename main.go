@@ -96,3 +96,8 @@ func getJobData(l string, c config, i int) {
 
 	ch <- j
 }
+
+// GetConfigs returns the config struct for each scrape
+func GetConfigs() configs {
+	return cs
+}

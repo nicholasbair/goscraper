@@ -1,6 +1,6 @@
 package goscraper
 
-type config struct {
+type Config struct {
 	Provider              string
 	BaseURL               string
 	Uri                   string
@@ -16,7 +16,7 @@ type config struct {
 	SelectorURL           string
 }
 
-type configs []config
+type Configs []config
 
 type Job struct {
 	Title       string
