@@ -10,8 +10,8 @@ import (
 )
 
 var wg sync.WaitGroup
-var js = jobs{}
-var ch = make(chan jobs)
+var js = Jobs{}
+var ch = make(chan Jobs)
 
 func main() {
 	// start := time.Now()
@@ -42,12 +42,12 @@ func (c config) scrape() {
 }
 
 func getNumResults(c config) int {
-	doc, err := goquery.NewDocument(c.uri)
+	doc, err := goquery.NewDocument(c.Uri)
 	checkError(err)
 
-	n := doc.Find(c.selectorResultsNumber)
+	n := doc.Find(c.SelectorResultsNumber)
 	s := strings.Split(strings.TrimSpace(n.Text()), " ")
-	i, err := strconv.Atoi(s[c.resultsNumberIndex])
+	i, err := strconv.Atoi(s[c.ResultsNumberIndex])
 	return i
 }
 
@@ -57,16 +57,16 @@ func getResultLinks(c config, numOfResults int) []string {
 
 	// Set the capacity of r dynamically instead of resizing
 
-	switch c.paginationType {
+	switch c.PaginationType {
 	case "resultCount":
-		n = c.resultsPerPage
+		n = c.ResultsPerPage
 	case "pageNumber":
 		n = 1
-		numOfResults = numOfResults / c.resultsPerPage
+		numOfResults = numOfResults / c.ResultsPerPage
 	}
 
 	for i := 0; i < numOfResults; i += n {
-		r = append(r, c.uri+c.paginationURL+strconv.Itoa(i))
+		r = append(r, c.Uri+c.PaginationURL+strconv.Itoa(i))
 	}
 
 	return r
@@ -80,15 +80,15 @@ func getJobData(l string, c config, i int) {
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	checkError(err)
 
-	j := make(jobs, 0, c.resultsPerPage)
+	j := make(Jobs, 0, c.ResultsPerPage)
 
-	doc.Find(c.selectorResultDiv).Each(func(i int, s *goquery.Selection) {
-		title := strings.TrimSpace(s.Find(c.selectorTitle).Text())
-		company := strings.TrimSpace(s.Find(c.selectorCompany).Text())
-		desc := strings.TrimSpace(s.Find(c.selectorDesc).Text())
-		url := s.Find(c.selectorURL)
+	doc.Find(c.SelectorResultDiv).Each(func(i int, s *goquery.Selection) {
+		title := strings.TrimSpace(s.Find(c.SelectorTitle).Text())
+		company := strings.TrimSpace(s.Find(c.SelectorCompany).Text())
+		desc := strings.TrimSpace(s.Find(c.SelectorDesc).Text())
+		url := s.Find(c.SelectorURL)
 		u, _ := url.Attr("href")
-		j = append(j, job{title, company, desc, c.baseURL + u, c.provider})
+		j = append(j, Job{title, company, desc, c.BaseURL + u, c.Provider})
 	})
 
 	ch <- j
