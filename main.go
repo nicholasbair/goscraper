@@ -18,15 +18,14 @@ import (
 // ...
 
 var wg sync.WaitGroup
-var js = Jobs{}
 var ch = make(chan Jobs)
 
 // Scrape kicks off a full scrape
-func Scrape(p string) Jobs {
-	// start := time.Now()
+func Scrape(p map[string]string) Jobs {
+	js := Jobs{}
 
 	wg.Add(1)
-	go cs[p].doScraping()
+	go cs[p["provider"]].doScraping(p)
 	go func() {
 		for r := range ch {
 			js = append(js, r...)
@@ -34,14 +33,12 @@ func Scrape(p string) Jobs {
 	}()
 
 	wg.Wait()
-	// elapsed := time.Since(start)
-	// fmt.Println("elapsed =", elapsed)
-	// fmt.Println(len(js))
 	return js
 }
 
-func (c Config) doScraping() {
+func (c Config) doScraping(p map[string]string) {
 	defer wg.Done()
+	// build initial search url
 	n := getNumResults(c)
 	l := getResultLinks(c, n)
 	wg.Add(len(l))
@@ -62,10 +59,9 @@ func getNumResults(c Config) int {
 }
 
 func getResultLinks(c Config, numOfResults int) []string {
+	// Set the capacity of r dynamically instead of resizing
 	r := []string{}
 	var n int
-
-	// Set the capacity of r dynamically instead of resizing
 
 	switch c.PaginationType {
 	case "resultCount":
