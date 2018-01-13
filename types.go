@@ -1,4 +1,4 @@
-package main
+package goscraper
 
 type config struct {
 	Provider              string

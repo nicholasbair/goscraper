@@ -1,4 +1,4 @@
-package main
+package goscraper
 
 func checkError(err error) {
 	if err != nil {
