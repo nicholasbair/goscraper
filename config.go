@@ -4,9 +4,12 @@ var cs = Configs{
 	"indeed": Config{
 		"indeed",
 		"https://www.indeed.com",
-		"https://www.indeed.com/jobs?q=customer+success+manager&as_not=travel&fromage=7&limit=50",
+		"https://www.indeed.com/jobs?&limit=50",
 		map[string]string{
 			"location": "l",
+			"q":        "q",
+			"not":      "as_not",
+			"from_age": "fromage",
 		},
 		// "https://www.indeed.com/jobs?q=customer+success+manager&l=denver,+co&as_not=travel&fromage=7&limit=50",
 		50,
