@@ -2,11 +2,12 @@
 package goscraper
 
 import (
-	"fmt"
+	"bytes"
 	"net/http"
 	"strconv"
 	"strings"
 	"sync"
+	"text/template"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -25,23 +26,23 @@ var ch = make(chan Jobs)
 func Scrape(p map[string][]string) Jobs {
 	js := Jobs{}
 
-	fmt.Println(p)
+	wg.Add(1)
+	go cs[p["provider"][0]].doScraping(p)
+	go func() {
+		for r := range ch {
+			js = append(js, r...)
+		}
+	}()
 
-	// wg.Add(1)
-	// go cs[p["provider"][0]].doScraping(p)
-	// go func() {
-	// 	for r := range ch {
-	// 		js = append(js, r...)
-	// 	}
-	// }()
-
-	// wg.Wait()
+	wg.Wait()
 	return js
 }
 
-func (c Config) doScraping(p map[string]string) {
+func (c Config) doScraping(p map[string][]string) {
 	defer wg.Done()
 	// build initial search url
+	r := buildRequest(c, p)
+	c.URL = buildSearchURL(c, r)
 	n := getNumResults(c)
 	l := getResultLinks(c, n)
 	wg.Add(len(l))
@@ -51,8 +52,28 @@ func (c Config) doScraping(p map[string]string) {
 	}
 }
 
+// location [denver co]
+// provider [dice]
+// map[location:[denver co] provider:[dice]]
+
+func buildSearchURL(c Config, r requestURL) string {
+	var tpl bytes.Buffer
+	t, err := template.New("test").Parse(c.TemplateURL)
+	checkError(err)
+	t.Execute(&tpl, r)
+	return tpl.String()
+}
+
+func buildRequest(c Config, p map[string][]string) requestURL {
+	delete(p, "provider")
+	r := requestURL{
+		location: strings.Join(p["location"], "+"),
+	}
+	return r
+}
+
 func getNumResults(c Config) int {
-	doc, err := goquery.NewDocument(c.Uri)
+	doc, err := goquery.NewDocument(c.URL)
 	checkError(err)
 
 	n := doc.Find(c.SelectorResultsNumber)
@@ -75,7 +96,7 @@ func getResultLinks(c Config, numOfResults int) []string {
 	}
 
 	for i := 0; i < numOfResults; i += n {
-		r = append(r, c.Uri+c.PaginationURL+strconv.Itoa(i))
+		r = append(r, c.URL+c.PaginationURL+strconv.Itoa(i))
 	}
 
 	return r

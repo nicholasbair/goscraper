@@ -3,7 +3,8 @@ package goscraper
 type Config struct {
 	Provider              string
 	BaseURL               string
-	Uri                   string
+	URL                   string
+	TemplateURL           string
 	ResultsPerPage        int
 	PaginationURL         string
 	PaginationType        string // resultCount or pageNumber
@@ -23,8 +24,12 @@ type Job struct {
 	Title       string
 	Company     string
 	Description string
-	Url         string
+	URL         string
 	Provider    string
 }
 
 type Jobs []Job
+
+type requestURL struct {
+	location string
+}
