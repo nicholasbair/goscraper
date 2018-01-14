@@ -42,7 +42,8 @@ func (c Config) doScraping(p map[string][]string) {
 	defer wg.Done()
 	// build initial search url
 	r := buildRequest(c, p)
-	c.URL = buildSearchURL(c, r)
+	// c.URL = buildSearchURL(c, r)
+	setURL(&c, buildSearchURL(c, r))
 	n := getNumResults(c)
 	l := getResultLinks(c, n)
 	wg.Add(len(l))
@@ -50,6 +51,10 @@ func (c Config) doScraping(p map[string][]string) {
 	for i, p := range l {
 		go getJobData(p, c, i)
 	}
+}
+
+func setURL(c *Config, u string) {
+	c.URL = u
 }
 
 // location [denver co]
