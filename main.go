@@ -2,13 +2,11 @@
 package goscraper
 
 import (
-	"bytes"
-	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"sync"
-	"text/template"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -41,9 +39,7 @@ func Scrape(p map[string][]string) Jobs {
 
 func (c Config) doScraping(p map[string][]string) {
 	defer wg.Done()
-	r := buildRequest(c, p)
-	u := buildSearchURL(c, r)
-	fmt.Println(u)
+	u := buildSearchURL(c, p)
 	n := getNumResults(c, u)
 	l := getResultLinks(c, n, u)
 	wg.Add(len(l))
@@ -53,23 +49,16 @@ func (c Config) doScraping(p map[string][]string) {
 	}
 }
 
-// map[location:[denver co] provider:[dice]]
-// https://www.indeed.com/jobs?q=customer+success+manager&l=
-func buildSearchURL(c Config, r RequestURL) string {
-	var tpl bytes.Buffer
-	// t, err := template.New("test").Parse(c.TemplateURL)
-	t, err := template.New("test").Parse("https://www.indeed.com/jobs?q=customer+success+manager&l={{.location}}&as_not=travel&fromage=7&limit=50")
+func buildSearchURL(c Config, p map[string][]string) string {
+	u, err := url.Parse(c.TemplateURL)
+	q := u.Query()
 	checkError(err)
-	t.Execute(&tpl, r)
-	return tpl.String()
-}
-
-func buildRequest(c Config, p map[string][]string) RequestURL {
-	// delete(p, "provider")
-	r := RequestURL{
-		Location: strings.Join(p["location"], "+"),
+	delete(p, "provider")
+	for k, v := range p {
+		q.Set(c.QueryMap[k], strings.Join(v, "+"))
 	}
-	return r
+	u.RawQuery = q.Encode()
+	return u.String()
 }
 
 func getNumResults(c Config, u string) int {

@@ -4,6 +4,7 @@ type Config struct {
 	Provider              string
 	BaseURL               string
 	TemplateURL           string
+	QueryMap              map[string]string
 	ResultsPerPage        int
 	PaginationURL         string
 	PaginationType        string // resultCount or pageNumber
@@ -28,7 +29,3 @@ type Job struct {
 }
 
 type Jobs []Job
-
-type RequestURL struct {
-	Location string
-}
