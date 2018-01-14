@@ -3,6 +3,7 @@ package goscraper
 
 import (
 	"bytes"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -42,6 +43,7 @@ func (c Config) doScraping(p map[string][]string) {
 	defer wg.Done()
 	r := buildRequest(c, p)
 	u := buildSearchURL(c, r)
+	fmt.Println(u)
 	n := getNumResults(c, u)
 	l := getResultLinks(c, n, u)
 	wg.Add(len(l))
