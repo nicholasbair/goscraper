@@ -29,6 +29,6 @@ type Job struct {
 
 type Jobs []Job
 
-type requestURL struct {
-	location string
+type RequestURL struct {
+	Location string
 }

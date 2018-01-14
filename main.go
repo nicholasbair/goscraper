@@ -55,7 +55,7 @@ func (c Config) doScraping(p map[string][]string) {
 
 // map[location:[denver co] provider:[dice]]
 // https://www.indeed.com/jobs?q=customer+success+manager&l=
-func buildSearchURL(c Config, r requestURL) string {
+func buildSearchURL(c Config, r RequestURL) string {
 	var tpl bytes.Buffer
 	// t, err := template.New("test").Parse(c.TemplateURL)
 	t, err := template.New("test").Parse("https://www.indeed.com/jobs?q=customer+success+manager&l={{.location}}&as_not=travel&fromage=7&limit=50")
@@ -64,10 +64,10 @@ func buildSearchURL(c Config, r requestURL) string {
 	return tpl.String()
 }
 
-func buildRequest(c Config, p map[string][]string) requestURL {
+func buildRequest(c Config, p map[string][]string) RequestURL {
 	// delete(p, "provider")
-	r := requestURL{
-		location: strings.Join(p["location"], "+"),
+	r := RequestURL{
+		Location: strings.Join(p["location"], "+"),
 	}
 	return r
 }
