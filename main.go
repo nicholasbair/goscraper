@@ -2,6 +2,7 @@
 package goscraper
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -34,14 +35,18 @@ func Scrape(p map[string][]string) Jobs {
 	}()
 
 	wg.Wait()
+	fmt.Println("length of js ", len(js))
 	return js
 }
 
 func (c Config) doScraping(p map[string][]string) {
 	defer wg.Done()
 	u := buildSearchURL(c, p)
+	fmt.Println("buildSearchURL = ", u)
 	n := getNumResults(c, u)
+	fmt.Println("getNumResults = ", n)
 	l := getResultLinks(c, n, u)
+	fmt.Println("getResultLinks = ", l)
 	wg.Add(len(l))
 
 	for i, p := range l {
@@ -55,7 +60,7 @@ func buildSearchURL(c Config, p map[string][]string) string {
 	checkError(err)
 	delete(p, "provider")
 	for k, v := range p {
-		q.Set(c.QueryMap[k], strings.Join(v, "+"))
+		q.Set(c.QueryMap[k], strings.Join(v, " "))
 	}
 	u.RawQuery = q.Encode()
 	return u.String()
