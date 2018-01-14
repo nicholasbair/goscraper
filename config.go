@@ -4,7 +4,6 @@ var cs = Configs{
 	"indeed": Config{
 		"indeed",
 		"https://www.indeed.com",
-		"",
 		"https://www.indeed.com/jobs?q=customer+success+manager&l={{.location}}&as_not=travel&fromage=7&limit=50",
 		// "https://www.indeed.com/jobs?q=customer+success+manager&l=denver,+co&as_not=travel&fromage=7&limit=50",
 		50,

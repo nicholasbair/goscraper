@@ -3,7 +3,6 @@ package goscraper
 type Config struct {
 	Provider              string
 	BaseURL               string
-	URL                   string
 	TemplateURL           string
 	ResultsPerPage        int
 	PaginationURL         string

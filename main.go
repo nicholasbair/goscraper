@@ -40,12 +40,10 @@ func Scrape(p map[string][]string) Jobs {
 
 func (c Config) doScraping(p map[string][]string) {
 	defer wg.Done()
-	// build initial search url
 	r := buildRequest(c, p)
-	// c.URL = buildSearchURL(c, r)
-	setURL(&c, buildSearchURL(c, r))
-	n := getNumResults(c)
-	l := getResultLinks(c, n)
+	u := buildSearchURL(c, r)
+	n := getNumResults(c, u)
+	l := getResultLinks(c, n, u)
 	wg.Add(len(l))
 
 	for i, p := range l {
@@ -53,12 +51,6 @@ func (c Config) doScraping(p map[string][]string) {
 	}
 }
 
-func setURL(c *Config, u string) {
-	c.URL = u
-}
-
-// location [denver co]
-// provider [dice]
 // map[location:[denver co] provider:[dice]]
 
 func buildSearchURL(c Config, r requestURL) string {
@@ -77,8 +69,8 @@ func buildRequest(c Config, p map[string][]string) requestURL {
 	return r
 }
 
-func getNumResults(c Config) int {
-	doc, err := goquery.NewDocument(c.URL)
+func getNumResults(c Config, u string) int {
+	doc, err := goquery.NewDocument(u)
 	checkError(err)
 
 	n := doc.Find(c.SelectorResultsNumber)
@@ -87,7 +79,7 @@ func getNumResults(c Config) int {
 	return i
 }
 
-func getResultLinks(c Config, numOfResults int) []string {
+func getResultLinks(c Config, numOfResults int, u string) []string {
 	// Set the capacity of r dynamically instead of resizing
 	r := []string{}
 	var n int
@@ -101,7 +93,7 @@ func getResultLinks(c Config, numOfResults int) []string {
 	}
 
 	for i := 0; i < numOfResults; i += n {
-		r = append(r, c.URL+c.PaginationURL+strconv.Itoa(i))
+		r = append(r, u+c.PaginationURL+strconv.Itoa(i))
 	}
 
 	return r
