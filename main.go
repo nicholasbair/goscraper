@@ -13,10 +13,7 @@ import (
 
 // TODO
 // Fix indeed url, just returning base url
-// What query params will we need to build out search URL?
-// keywords
-// location - city and state
-// ...
+// Define required query params, and return error if not included
 
 var wg sync.WaitGroup
 var ch = make(chan Jobs)
@@ -61,6 +58,7 @@ func buildSearchURL(c Config, p map[string][]string) string {
 	return u.String()
 }
 
+// TODO handle # of results w/ a comma "1,790"
 func getNumResults(c Config, u string) int {
 	doc, err := goquery.NewDocument(u)
 	checkError(err)
@@ -116,4 +114,9 @@ func getJobData(l string, c Config, i int) {
 // GetConfigs returns the config struct for each scrape
 func GetConfigs() Configs {
 	return cs
+}
+
+// GetConfig returns a single config struct
+func GetConfig(p string) Config {
+	return cs[p]
 }
