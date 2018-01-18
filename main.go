@@ -13,7 +13,6 @@ import (
 
 // TODO
 // Fix indeed url, just returning base url
-// Define required query params, and return error if not included
 
 var wg sync.WaitGroup
 var ch = make(chan Jobs)
@@ -22,15 +21,18 @@ var ch = make(chan Jobs)
 func Scrape(p map[string][]string) Jobs {
 	js := Jobs{}
 
-	wg.Add(1)
-	go cs[p["provider"][0]].doScraping(p)
+	// Start channel listener
 	go func() {
 		for r := range ch {
 			js = append(js, r...)
 		}
 	}()
 
+	wg.Add(1)
+	go cs[p["provider"][0]].doScraping(p)
+
 	wg.Wait()
+	close(ch)
 	return js
 }
 
@@ -38,19 +40,26 @@ func (c Config) doScraping(p map[string][]string) {
 	defer wg.Done()
 	u := buildSearchURL(c, p)
 	n := getNumResults(c, u)
+	// Pagination: use p["page"] to config the correct page links to return
 	l := getResultLinks(c, n, u)
 	wg.Add(len(l))
 
-	for i, p := range l {
-		go getJobData(p, c, i)
+	for _, link := range l {
+		go getJobData(link, c)
 	}
+	wg.Wait()
 }
 
 func buildSearchURL(c Config, p map[string][]string) string {
 	u, err := url.Parse(c.TemplateURL)
 	q := u.Query()
 	checkError(err)
+
+	// Better to build a helper function that deletes k/v pairs from p that don't patch
+	// the query map in c Config
 	delete(p, "provider")
+	delete(p, "page")
+
 	for k, v := range p {
 		q.Set(c.QueryMap[k], strings.Join(v, " "))
 	}
@@ -60,8 +69,12 @@ func buildSearchURL(c Config, p map[string][]string) string {
 
 // TODO handle # of results w/ a comma "1,790"
 func getNumResults(c Config, u string) int {
-	doc, err := goquery.NewDocument(u)
+	resp, err := http.Get(u)
 	checkError(err)
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	checkError(err)
+
+	resp.Body.Close()
 
 	n := doc.Find(c.SelectorResultsNumber)
 	s := strings.Split(strings.TrimSpace(n.Text()), " ")
@@ -70,32 +83,37 @@ func getNumResults(c Config, u string) int {
 }
 
 func getResultLinks(c Config, numOfResults int, u string) []string {
-	// Set the capacity of r dynamically instead of resizing
-	r := []string{}
+	r := make([]string, 0, 200/c.ResultsPerPage)
+
 	var n int
+	var limit int
 
 	switch c.PaginationType {
-	case "resultCount":
+	case "resultCount": // Indeed
 		n = c.ResultsPerPage
-	case "pageNumber":
+		limit = 200
+	case "pageNumber": // Dice
 		n = 1
-		numOfResults = numOfResults / c.ResultsPerPage
+		// numOfResults = numOfResults / c.ResultsPerPage
+		// numOfResults = 200 / c.ResultsPerPage
+		limit = 200 / c.ResultsPerPage
 	}
 
-	for i := 0; i < numOfResults; i += n {
+	for i := 0; i < limit; i += n {
 		r = append(r, u+c.PaginationURL+strconv.Itoa(i))
 	}
 
 	return r
 }
 
-func getJobData(l string, c Config, i int) {
+func getJobData(l string, c Config) {
 	defer wg.Done()
 	resp, err := http.Get(l)
 	checkError(err)
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	checkError(err)
+	resp.Body.Close()
 
 	j := make(Jobs, 0, c.ResultsPerPage)
 
