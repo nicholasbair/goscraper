@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -33,6 +34,8 @@ func Scrape(p map[string][]string) Jobs {
 
 	wg.Wait()
 	close(ch)
+	// TEMP: allow the last value from the channel to append to js
+	time.Sleep(time.Nanosecond)
 	return js
 }
 
@@ -47,7 +50,6 @@ func (c Config) doScraping(p map[string][]string) {
 	for _, link := range l {
 		go getJobData(link, c)
 	}
-	wg.Wait()
 }
 
 func buildSearchURL(c Config, p map[string][]string) string {
