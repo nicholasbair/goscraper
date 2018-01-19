@@ -14,8 +14,10 @@ func TestScrapeDice(t *testing.T) {
 		"sort":     []string{"relevance"},
 		"radius":   []string{"30"},
 		"provider": []string{"dice"},
+		"page":     []string{"2"},
 	}
 	r := Scrape(p)
+	fmt.Println(len(r))
 	if len(r) == 0 {
 		t.Error("Expected results of scrape to be greater than zero")
 	}
@@ -27,9 +29,9 @@ func TestScrapeIndeed(t *testing.T) {
 		"q":        []string{"customer", "success", "manager"},
 		"from_age": []string{"7"},
 		"provider": []string{"indeed"},
+		"page":     []string{"2"},
 	}
 	r := Scrape(p)
-	fmt.Println(len(r))
 	if len(r) == 0 {
 		t.Error("Expected results of scrape to be greater than zero")
 	}

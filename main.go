@@ -33,7 +33,6 @@ func Scrape(p map[string][]string) Jobs {
 	go cs[p["provider"][0]].doScraping(p)
 
 	wg.Wait()
-	close(ch)
 	// TEMP: allow the last value from the channel to append to js
 	time.Sleep(time.Nanosecond)
 	return js
@@ -41,15 +40,31 @@ func Scrape(p map[string][]string) Jobs {
 
 func (c Config) doScraping(p map[string][]string) {
 	defer wg.Done()
+	// Handle no page #
+	pNum := handlePageNum(p)
 	u := buildSearchURL(c, p)
 	n := getNumResults(c, u)
 	// Pagination: use p["page"] to config the correct page links to return
-	l := getResultLinks(c, n, u)
+	l := getResultLinks(c, n, u, pNum)
 	wg.Add(len(l))
 
 	for _, link := range l {
 		go getJobData(link, c)
 	}
+}
+
+func handlePageNum(p map[string][]string) int {
+	var pNum int
+
+	if p["page"] != nil {
+		pNum, _ = strconv.Atoi(p["page"][0])
+		// if err != nil {
+		// 	pNum = 1
+		// }
+	} else {
+		pNum = 1
+	}
+	return pNum
 }
 
 func buildSearchURL(c Config, p map[string][]string) string {
@@ -84,24 +99,27 @@ func getNumResults(c Config, u string) int {
 	return i
 }
 
-func getResultLinks(c Config, numOfResults int, u string) []string {
-	r := make([]string, 0, 200/c.ResultsPerPage)
-
+func getResultLinks(c Config, numOfResults int, u string, pageNum int) []string {
+	const paginationNum = 200
 	var n int
 	var limit int
+	var index int
+
+	r := make([]string, 0, paginationNum/c.ResultsPerPage)
 
 	switch c.PaginationType {
+	// TODO Indeed only returning 100, check your math
 	case "resultCount": // Indeed
 		n = c.ResultsPerPage
-		limit = 200
+		limit = paginationNum
+		index = 0
 	case "pageNumber": // Dice
 		n = 1
-		// numOfResults = numOfResults / c.ResultsPerPage
-		// numOfResults = 200 / c.ResultsPerPage
-		limit = 200 / c.ResultsPerPage
+		index = (paginationNum / c.ResultsPerPage) + 1
+		limit = index + pageNum
 	}
 
-	for i := 0; i < limit; i += n {
+	for i := index; i < limit; i += n {
 		r = append(r, u+c.PaginationURL+strconv.Itoa(i))
 	}
 
