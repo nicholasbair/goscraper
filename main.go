@@ -84,6 +84,7 @@ func buildSearchURL(c Config, p map[string][]string) string {
 func getNumResults(c Config, u string) int {
 	resp, err := http.Get(u)
 	checkError(err)
+	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	checkError(err)
@@ -91,10 +92,10 @@ func getNumResults(c Config, u string) int {
 	n := doc.Find(c.SelectorResultsNumber)
 	s := strings.Split(strings.TrimSpace(n.Text()), " ")
 	i, err := strconv.Atoi(s[c.ResultsNumberIndex])
+	fmt.Println("n.Text()=", n.Text())
 	fmt.Println("s =", s)
 	fmt.Println("i =", i)
 	checkError(err)
-	resp.Body.Close()
 
 	return i
 }
