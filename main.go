@@ -43,6 +43,7 @@ func (c Config) doScraping(p map[string][]string) {
 	defer wg.Done()
 	pNum := handlePageNum(p)
 	u := buildSearchURL(c, p)
+	fmt.Println("buildSearchURL =", u)
 	n := getNumResults(c, u)
 	l := getResultLinks(c, n, u, pNum)
 	wg.Add(len(l))
