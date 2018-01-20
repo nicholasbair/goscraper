@@ -2,7 +2,6 @@
 package goscraper
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -15,6 +14,9 @@ import (
 
 // TODO
 // Fix indeed url, just returning base url
+// Dice title and description have tons of \t
+// Handle Dice comma in location edge case
+// Handle zero results
 
 var wg sync.WaitGroup
 var ch = make(chan Jobs)
@@ -32,7 +34,6 @@ func Scrape(p map[string][]string) Jobs {
 
 	wg.Add(1)
 	go cs[p["provider"][0]].doScraping(p)
-
 	wg.Wait()
 	// TEMP: allow the last value from the channel to append to js
 	time.Sleep(time.Nanosecond)
@@ -41,9 +42,9 @@ func Scrape(p map[string][]string) Jobs {
 
 func (c Config) doScraping(p map[string][]string) {
 	defer wg.Done()
-	pNum := handlePageNum(p)
+	pNum, err := handlePageNum(p)
+	checkError(err)
 	u := buildSearchURL(c, p)
-	fmt.Println("buildSearchURL =", u)
 	n := getNumResults(c, u)
 	l := getResultLinks(c, n, u, pNum)
 	wg.Add(len(l))
@@ -53,15 +54,11 @@ func (c Config) doScraping(p map[string][]string) {
 	}
 }
 
-func handlePageNum(p map[string][]string) int {
-	var pNum int
-
+func handlePageNum(p map[string][]string) (int, error) {
 	if p["page"] != nil {
-		pNum, _ = strconv.Atoi(p["page"][0])
-	} else {
-		pNum = 1
+		return strconv.Atoi(p["page"][0])
 	}
-	return pNum
+	return 1, nil
 }
 
 func buildSearchURL(c Config, p map[string][]string) string {
@@ -81,7 +78,6 @@ func buildSearchURL(c Config, p map[string][]string) string {
 	return u.String()
 }
 
-// TODO handle # of results w/ a comma "1,790"
 func getNumResults(c Config, u string) int {
 	resp, err := http.Get(u)
 	checkError(err)
@@ -91,7 +87,7 @@ func getNumResults(c Config, u string) int {
 	checkError(err)
 
 	n := doc.Find(c.SelectorResultsNumber)
-	s := strings.Split(strings.TrimSpace(n.Text()), " ")
+	s := cleanString(n.Text())
 	i, err := strconv.Atoi(s[c.ResultsNumberIndex])
 	checkError(err)
 
@@ -128,7 +124,6 @@ func getResultLinks(c Config, numOfResults int, u string, pageNum int) []string 
 	return r
 }
 
-// TODO: build helper function for http
 func getJobData(l string, c Config) {
 	defer wg.Done()
 	resp, err := http.Get(l)

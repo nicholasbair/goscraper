@@ -1,5 +1,6 @@
 package goscraper
 
+// Config for each provider
 type Config struct {
 	Provider              string
 	BaseURL               string
@@ -17,9 +18,10 @@ type Config struct {
 	SelectorURL           string
 }
 
-// type Configs []Config
+// Configs is a collection of configs
 type Configs map[string]Config
 
+// Job is a result the Scraper returns to the server
 type Job struct {
 	Title       string
 	Company     string
@@ -28,4 +30,5 @@ type Job struct {
 	Provider    string
 }
 
+// Jobs is a collection of results
 type Jobs []Job
