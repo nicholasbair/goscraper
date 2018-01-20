@@ -152,6 +152,8 @@ func getJobData(l string, c Config) {
 		j = append(j, Job{title, company, desc, c.BaseURL + u, c.Provider})
 	})
 
+	fmt.Println(j)
+
 	ch <- j
 }
 
