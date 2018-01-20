@@ -93,9 +93,6 @@ func getNumResults(c Config, u string) int {
 	n := doc.Find(c.SelectorResultsNumber)
 	s := strings.Split(strings.TrimSpace(n.Text()), " ")
 	i, err := strconv.Atoi(s[c.ResultsNumberIndex])
-	fmt.Println("n.Text()=", n.Text())
-	fmt.Println("s =", s)
-	fmt.Println("i =", i)
 	checkError(err)
 
 	return i
@@ -151,8 +148,6 @@ func getJobData(l string, c Config) {
 		u, _ := url.Attr("href")
 		j = append(j, Job{title, company, desc, c.BaseURL + u, c.Provider})
 	})
-
-	fmt.Println(j)
 
 	ch <- j
 }
