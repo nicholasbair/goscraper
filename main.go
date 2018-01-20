@@ -84,7 +84,6 @@ func buildSearchURL(c Config, p map[string][]string) string {
 func getNumResults(c Config, u string) int {
 	resp, err := http.Get(u)
 	checkError(err)
-	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	checkError(err)
@@ -95,6 +94,7 @@ func getNumResults(c Config, u string) int {
 	fmt.Println("s =", s)
 	fmt.Println("i =", i)
 	checkError(err)
+	resp.Body.Close()
 
 	return i
 }
