@@ -9,6 +9,13 @@ func checkError(err error) {
 }
 
 func cleanString(s string) []string {
-	newS := strings.Replace(s, ",", "", -1)
-	return strings.Split(strings.TrimSpace(newS), " ")
+	return strings.Split(strings.TrimSpace(strings.Replace(s, ",", "", -1)), " ")
+}
+
+func cleanMap(c Config, p map[string][]string) {
+	for k := range c.QueryMap {
+		if _, ok := p[k]; !ok {
+			delete(p, k)
+		}
+	}
 }
