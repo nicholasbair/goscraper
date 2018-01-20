@@ -92,6 +92,8 @@ func getNumResults(c Config, u string) int {
 	n := doc.Find(c.SelectorResultsNumber)
 	s := strings.Split(strings.TrimSpace(n.Text()), " ")
 	i, err := strconv.Atoi(s[c.ResultsNumberIndex])
+	fmt.Println("s =", s)
+	fmt.Println("i =", i)
 	checkError(err)
 
 	return i
@@ -123,8 +125,6 @@ func getResultLinks(c Config, numOfResults int, u string, pageNum int) []string 
 	for i := index; i < limit; i += n {
 		r = append(r, u+c.PaginationURL+strconv.Itoa(i))
 	}
-
-	fmt.Println(r)
 
 	return r
 }
