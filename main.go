@@ -2,6 +2,7 @@
 package goscraper
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -40,11 +41,9 @@ func Scrape(p map[string][]string) Jobs {
 
 func (c Config) doScraping(p map[string][]string) {
 	defer wg.Done()
-	// Handle no page #
 	pNum := handlePageNum(p)
 	u := buildSearchURL(c, p)
 	n := getNumResults(c, u)
-	// Pagination: use p["page"] to config the correct page links to return
 	l := getResultLinks(c, n, u, pNum)
 	wg.Add(len(l))
 
@@ -58,9 +57,6 @@ func handlePageNum(p map[string][]string) int {
 
 	if p["page"] != nil {
 		pNum, _ = strconv.Atoi(p["page"][0])
-		// if err != nil {
-		// 	pNum = 1
-		// }
 	} else {
 		pNum = 1
 	}
@@ -69,8 +65,8 @@ func handlePageNum(p map[string][]string) int {
 
 func buildSearchURL(c Config, p map[string][]string) string {
 	u, err := url.Parse(c.TemplateURL)
-	q := u.Query()
 	checkError(err)
+	q := u.Query()
 
 	// Better to build a helper function that deletes k/v pairs from p that don't patch
 	// the query map in c Config
@@ -88,14 +84,16 @@ func buildSearchURL(c Config, p map[string][]string) string {
 func getNumResults(c Config, u string) int {
 	resp, err := http.Get(u)
 	checkError(err)
+	defer resp.Body.Close()
+
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	checkError(err)
-
-	resp.Body.Close()
 
 	n := doc.Find(c.SelectorResultsNumber)
 	s := strings.Split(strings.TrimSpace(n.Text()), " ")
 	i, err := strconv.Atoi(s[c.ResultsNumberIndex])
+	checkError(err)
+
 	return i
 }
 
@@ -108,11 +106,14 @@ func getResultLinks(c Config, numOfResults int, u string, pageNum int) []string 
 	r := make([]string, 0, paginationNum/c.ResultsPerPage)
 
 	switch c.PaginationType {
-	// TODO Indeed only returning 100, check your math
 	case "resultCount": // Indeed
 		n = c.ResultsPerPage
-		limit = paginationNum
-		index = 0
+		limit = paginationNum * pageNum
+		if pageNum == 1 {
+			index = 0
+		} else {
+			index = (pageNum - 1) * paginationNum
+		}
 	case "pageNumber": // Dice
 		n = 1
 		index = (paginationNum / c.ResultsPerPage) + 1
@@ -123,17 +124,20 @@ func getResultLinks(c Config, numOfResults int, u string, pageNum int) []string 
 		r = append(r, u+c.PaginationURL+strconv.Itoa(i))
 	}
 
+	fmt.Println(r)
+
 	return r
 }
 
+// TODO: build helper function for http
 func getJobData(l string, c Config) {
 	defer wg.Done()
 	resp, err := http.Get(l)
 	checkError(err)
+	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	checkError(err)
-	resp.Body.Close()
 
 	j := make(Jobs, 0, c.ResultsPerPage)
 
