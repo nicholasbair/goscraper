@@ -10,8 +10,9 @@ import (
 )
 
 // TODO
-// Handle zero results
-// Handle page=0 and page=99999999999
+// Error handling:
+//- Handle zero results
+//- Handle page=99999999999
 
 func (c Config) doScraping(p map[string][]string) {
 	defer wg.Done()
@@ -53,6 +54,7 @@ func buildSearchURL(c Config, p map[string][]string) string {
 	return u.String()
 }
 
+// TODO: Handle zero results here
 func getNumResults(c Config, u string) int {
 	resp, err := http.Get(u)
 	checkError(err)

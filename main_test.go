@@ -60,7 +60,7 @@ func TestScrapeDicePagination(t *testing.T) {
 // 		"q":        []string{"customer", "success", "manager"},
 // 		"from_age": []string{"7"},
 // 		"provider": []string{"indeed"},
-// 		"page":     []string{"2"},
+// 		"page":     []string{"0"},
 // 	}
 // 	r := Scrape(p)
 // 	fmt.Println("Indeed with pagination returned", len(r))
