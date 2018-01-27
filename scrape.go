@@ -10,11 +10,8 @@ import (
 )
 
 // TODO
-// Fix indeed url, just returning base url
-// Dice title and description have tons of \t
-// Handle Dice comma in location edge case
 // Handle zero results
-// Handle page=0
+// Handle page=0 and page=99999999999
 
 func (c Config) doScraping(p map[string][]string) {
 	defer wg.Done()
@@ -44,7 +41,13 @@ func buildSearchURL(c Config, p map[string][]string) string {
 	cleanMap(c, p)
 
 	for k, v := range p {
-		q.Set(c.QueryMap[k], strings.Join(v, " "))
+		switch {
+		// Dice expects a comma after city
+		case c.Provider == "dice" && k == "location" && len(p) > 1:
+			q.Set(c.QueryMap[k], strings.Join(v, ", "))
+		default:
+			q.Set(c.QueryMap[k], strings.Join(v, " "))
+		}
 	}
 	u.RawQuery = q.Encode()
 	return u.String()
@@ -108,9 +111,9 @@ func getJobData(l string, c Config) {
 	j := make(Jobs, 0, c.ResultsPerPage)
 
 	doc.Find(c.SelectorResultDiv).Each(func(i int, s *goquery.Selection) {
-		title := strings.TrimSpace(s.Find(c.SelectorTitle).Text())
-		company := strings.TrimSpace(s.Find(c.SelectorCompany).Text())
-		desc := strings.TrimSpace(s.Find(c.SelectorDesc).Text())
+		title := strip(strings.TrimSpace(s.Find(c.SelectorTitle).Text()))
+		company := strip(strings.TrimSpace(s.Find(c.SelectorCompany).Text()))
+		desc := strip(strings.TrimSpace(s.Find(c.SelectorDesc).Text()))
 		url := s.Find(c.SelectorURL)
 		u, _ := url.Attr("href")
 		j = append(j, Job{title, company, desc, c.BaseURL + u, c.Provider})

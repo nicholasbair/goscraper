@@ -20,7 +20,7 @@ var cs = Configs{
 		".jobtitle",
 		".company",
 		".summary",
-		".turnstilelink",
+		".turnstileLink",
 	},
 	"dice": Config{
 		"dice",

@@ -23,11 +23,11 @@ type Configs map[string]Config
 
 // Job is a result the Scraper returns to the server
 type Job struct {
-	Title       string
-	Company     string
-	Description string
-	URL         string
-	Provider    string
+	Title       string `json:"title"`
+	Company     string `json:"company"`
+	Description string `json:"description"`
+	URL         string `json:"url"`
+	Provider    string `json:"provider"`
 }
 
 // Jobs is a collection of results
