@@ -10,7 +10,8 @@ var wg sync.WaitGroup
 var ch = make(chan Jobs)
 
 // Scrape kicks off a scrape
-func Scrape(p map[string][]string) Jobs {
+func Scrape(p map[string][]string) (Jobs, error) {
+	var err error
 	js := Jobs{}
 
 	// Start channel listener
@@ -25,7 +26,7 @@ func Scrape(p map[string][]string) Jobs {
 	wg.Wait()
 	// TEMP: allow the last value from the channel to append to js
 	time.Sleep(time.Nanosecond)
-	return js
+	return js, err
 }
 
 // GetConfigs returns the config struct for each scrape
