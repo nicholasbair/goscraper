@@ -1,10 +1,12 @@
 package goscraper
 
-import "strings"
+import (
+	"strings"
+)
 
 func checkError(err error) {
 	if err != nil {
-		panic(err)
+		ce <- err
 	}
 }
 

@@ -8,16 +8,27 @@ import (
 
 var wg sync.WaitGroup
 var ch = make(chan Jobs)
+var ce = make(chan error)
 
 // Scrape kicks off a scrape
 func Scrape(p map[string][]string) (Jobs, error) {
 	var err error
 	js := Jobs{}
 
-	// Start channel listener
+	// Start channel listener for jobs
 	go func() {
 		for r := range ch {
 			js = append(js, r...)
+		}
+	}()
+
+	// Start channel listener for errors
+	go func() {
+		for {
+			select {
+			case err = <-ce:
+				return
+			}
 		}
 	}()
 

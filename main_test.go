@@ -45,9 +45,10 @@ func TestScrapeDicePagination(t *testing.T) {
 		"sort":     []string{"relevance"},
 		"radius":   []string{"30"},
 		"provider": []string{"dice"},
-		"page":     []string{"2"},
+		"page":     []string{"test"},
 	}
-	r := Scrape(p)
+	r, err := Scrape(p)
+	fmt.Println(err)
 	fmt.Println("Dice w/ pagination returned", len(r))
 	if len(r) < 200 {
 		t.Error("Expected results of scrape with pagination to be greater than 200")
