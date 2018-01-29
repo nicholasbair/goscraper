@@ -7,6 +7,7 @@ import (
 func checkError(err error) {
 	if err != nil {
 		ce <- err
+		close(ce)
 	}
 }
 

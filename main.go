@@ -2,6 +2,7 @@
 package goscraper
 
 import (
+	"context"
 	"sync"
 	"time"
 )
@@ -24,9 +25,11 @@ func Scrape(p map[string][]string) (Jobs, error) {
 
 	// Start channel listener for errors
 	go func() {
+		_, cancel := context.WithCancel(context.Background())
 		for {
 			select {
 			case err = <-ce:
+				cancel()
 				return
 			}
 		}

@@ -19,6 +19,11 @@ import (
 
 func (c Config) doScraping(p map[string][]string) {
 	defer wg.Done()
+	// Pass in 'test' as page number in url
+	// handlePageNum should return error
+	// and check error should push that into the channel
+	// BUT program will continue and break later
+	// when it tries to consume pNum
 	pNum, err := handlePageNum(p)
 	checkError(err)
 	u := buildSearchURL(c, p)
