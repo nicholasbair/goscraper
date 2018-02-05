@@ -36,39 +36,40 @@ import (
 // 	}
 // }
 
-func TestScrapeDicePagination(t *testing.T) {
-	p := map[string][]string{
-		"location": []string{"denver", "co"},
-		"q":        []string{"customer", "success", "manager"},
-		"from_age": []string{"7"},
-		"job_type": []string{"Full", "Time"},
-		"sort":     []string{"relevance"},
-		"radius":   []string{"30"},
-		"provider": []string{"dice"},
-		"page":     []string{"test"},
-	}
-	r, err := Scrape(p)
-	fmt.Println(err)
-	fmt.Println("Dice w/ pagination returned", len(r))
-	if len(r) < 200 {
-		t.Error("Expected results of scrape with pagination to be greater than 200")
-	}
-}
-
-// func TestScrapeIndeedPagination(t *testing.T) {
+// func TestScrapeDicePagination(t *testing.T) {
 // 	p := map[string][]string{
 // 		"location": []string{"denver", "co"},
 // 		"q":        []string{"customer", "success", "manager"},
 // 		"from_age": []string{"7"},
-// 		"provider": []string{"indeed"},
-// 		"page":     []string{"0"},
+// 		"job_type": []string{"Full", "Time"},
+// 		"sort":     []string{"relevance"},
+// 		"radius":   []string{"30"},
+// 		"provider": []string{"dice"},
+// 		"page":     []string{"test"},
 // 	}
-// 	r := Scrape(p)
-// 	fmt.Println("Indeed with pagination returned", len(r))
+// 	r, err := Scrape(p)
+// 	fmt.Println(err)
+// 	fmt.Println("Dice w/ pagination returned", len(r))
 // 	if len(r) < 200 {
 // 		t.Error("Expected results of scrape with pagination to be greater than 200")
 // 	}
 // }
+
+func TestScrapeIndeedPagination(t *testing.T) {
+	p := map[string][]string{
+		"location": []string{"denver", "co"},
+		"q":        []string{"customer", "success", "manager"},
+		"from_age": []string{"7"},
+		"provider": []string{"indeed"},
+		"page":     []string{"test"},
+	}
+	r, err := Scrape(p)
+	fmt.Println(err)
+	fmt.Println("Indeed w/ pagination returned", len(r))
+	if len(r) < 200 {
+		t.Error("Expected results of scrape with pagination to be greater than 200")
+	}
+}
 
 func TestGetConfigs(t *testing.T) {
 	r := GetConfigs()

@@ -9,14 +9,6 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-// TODO
-// Add base url to url returned in Job
-// GET /scrapers/indeed should return a desc, and searchable fields, not entire config
-// Error handling:
-//- Scrape func should return error
-//- Handle zero results
-//- Handle page=99999999999
-
 func (c Config) doScraping(p map[string][]string) {
 	defer wg.Done()
 	// Pass in 'test' as page number in url

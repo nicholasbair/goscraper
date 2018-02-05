@@ -2,14 +2,15 @@
 package goscraper
 
 import (
-	"context"
 	"sync"
 	"time"
 )
 
-var wg sync.WaitGroup
-var ch = make(chan Jobs)
-var ce = make(chan error)
+var (
+	wg sync.WaitGroup
+	ch = make(chan Jobs, 1)
+	ce = make(chan error, 1)
+)
 
 // Scrape kicks off a scrape
 func Scrape(p map[string][]string) (Jobs, error) {
@@ -25,11 +26,9 @@ func Scrape(p map[string][]string) (Jobs, error) {
 
 	// Start channel listener for errors
 	go func() {
-		_, cancel := context.WithCancel(context.Background())
 		for {
 			select {
 			case err = <-ce:
-				cancel()
 				return
 			}
 		}
